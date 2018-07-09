@@ -53,3 +53,25 @@ enrol.df <- import("./data/PF3_2_Enrolment_childcare_preschool.xlsx",
 
 ecec.df <- ecec.df %>%
   left_join(enrol.df, by = c("Country", "year"))
+
+# Some plot tinkering
+ecec.mean <- ecec.df %>%
+  filter(year >= 2004) %>%
+  group_by(year) %>%
+  mutate(mean.enrol = mean(enrolment, na.rm = TRUE))
+
+ecec.plot.df <- ecec.df %>%
+  filter(year >= 2004)
+
+p <- ggplot(ecec.plot.df, aes(x = year, y = enrolment)) +
+  geom_line(aes(group = Country), color = "gray70") +
+  theme_minimal() +
+  theme(panel.grid.minor.x = element_blank(),
+        panel.grid.major.x = element_blank(),
+        text = element_text(size = 14),
+        axis.ticks = element_line(size = .5))
+
+p <- p + geom_line(data = subset(ecec.plot.df, Country == "Germany"),
+            aes(x = year, y = enrolment, group = Country), color = "black")
+
+p <- p + geom_line(data = ecec.mean, aes(x = year, y = mean.enrol, group = Country), color = "blue")
