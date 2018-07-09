@@ -12,7 +12,7 @@ p_load(tidyverse, rio, countrycode)
 # Read in policy indicators
 # (1) Get files
 files <- list.files(path = "./data", pattern = "*.xlsx|.xls", full.names = TRUE) %>%
-  .[-2]
+  .[c(-2,-4,-5)]
 
 # (2) Map over files while reading
 spin.df <- data_frame(
@@ -48,7 +48,8 @@ ecec.df <- import("./data/PF3_1_Public_spending_on_childcare_and_early_education
 enrol.df <- import("./data/PF3_2_Enrolment_childcare_preschool.xlsx",
                    range = "A4:V45", sheet = 7) %>%
   select(-Note) %>%
-  gather(key = year, value = enrolment, -Country)
+  gather(key = year, value = enrolment, -Country) %>%
+  mutate(enrolment = as.numeric(enrolment))
 
-ggplot(data = ecec.df[ecec.df$Country == c("Germany", "Denmark", "Austria"),], aes(x = year, y = expenditure, group = Country, colour = Country)) +
-  geom_line()
+ecec.df <- ecec.df %>%
+  left_join(enrol.df, by = c("Country", "year"))
