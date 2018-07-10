@@ -8,6 +8,7 @@ if (!require("pacman")) install.packages("pacman")
 p_load(tidyverse, rio, countrycode)
 
 # Data from http://www.spin.su.se/datasets
+### ------------------------------------------------------------------------------------------------ ###
 
 # Read in policy indicators
 # (1) Get files
@@ -24,6 +25,8 @@ spin.df <- data_frame(
   )
 
 # From OECD.Stat "SOCX_AGG"
+### ------------------------------------------------------------------------------------------------ ###
+
 # Would need GDP p.c. to proceed further
 socialexp.df <- import("./data/SOCX_AGG_09072018142527039.csv") %>%
   filter(Branch == "Family")
@@ -33,6 +36,7 @@ ecec.df <- socialexp.df %>%
          Year >= 1990)
 
 # Other option: OECD "Family Database"
+### ------------------------------------------------------------------------------------------------ ###
 
 # Link: http://www.oecd.org/els/soc/PF3_1_Public_spending_on_childcare_and_early_education.xlsx
 ecec.df <- import("./data/PF3_1_Public_spending_on_childcare_and_early_education.xlsx",
