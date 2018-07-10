@@ -5,21 +5,21 @@
 
 # Packages
 if (!require("pacman")) install.packages("pacman")
-p_load(tidyverse, rio, countrycode)
+p_load(tidyverse, rio, countrycode, ggrepel)
 
 # Data from http://www.spin.su.se/datasets
 
 # Read in policy indicators
 # (1) Get files
 files <- list.files(path = "./data", pattern = "*.xlsx|.xls", full.names = TRUE) %>%
-  .[c(-2,-4,-5)]
+  .[c(-2,-4,-5)] # Certain aren't needed
 
 # (2) Map over files while reading
 spin.df <- data_frame(
   filename = str_extract_all(files, pattern = "[:upper:]+")) %>%
   mutate(data = 
            map2(.x = files, 
-                .y = c(0,0,1,0,0),
+                .y = c(0,0,1,0,0), # One file has two headings
                ~import(., col_names = TRUE, skip = .y))
   )
 
@@ -53,25 +53,3 @@ enrol.df <- import("./data/PF3_2_Enrolment_childcare_preschool.xlsx",
 
 ecec.df <- ecec.df %>%
   left_join(enrol.df, by = c("Country", "year"))
-
-# Some plot tinkering
-ecec.mean <- ecec.df %>%
-  filter(year >= 2004) %>%
-  group_by(year) %>%
-  mutate(mean.enrol = mean(enrolment, na.rm = TRUE))
-
-ecec.plot.df <- ecec.df %>%
-  filter(year >= 2004)
-
-p <- ggplot(ecec.plot.df, aes(x = year, y = enrolment)) +
-  geom_line(aes(group = Country), color = "gray70") +
-  theme_minimal() +
-  theme(panel.grid.minor.x = element_blank(),
-        panel.grid.major.x = element_blank(),
-        text = element_text(size = 14),
-        axis.ticks = element_line(size = .5))
-
-p <- p + geom_line(data = subset(ecec.plot.df, Country == "Germany"),
-            aes(x = year, y = enrolment, group = Country), color = "black")
-
-p <- p + geom_line(data = ecec.mean, aes(x = year, y = mean.enrol, group = Country), color = "blue")
