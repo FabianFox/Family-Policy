@@ -41,7 +41,8 @@ ecec.df <- import("./data/PF3_1_Public_spending_on_childcare_and_early_education
   gather(key = year, value = expenditure, -Country) %>%
   mutate(ISO3 = countrycode(Country, origin = "country.name", destination = "iso3c"),
          EU28 = countrycode(Country, origin = "country.name", destination = "eu28"),
-         expenditure = as.numeric(expenditure)) %>%
+         expenditure = as.numeric(expenditure),
+         year = as.numeric(year)) %>%
   filter(!is.na(EU28))
 
 # Link: http://www.oecd.org/els/soc/PF3_2_Enrolment_childcare_preschool.xlsx
@@ -49,7 +50,8 @@ enrol.df <- import("./data/PF3_2_Enrolment_childcare_preschool.xlsx",
                    range = "A4:V45", sheet = 7) %>%
   select(-Note) %>%
   gather(key = year, value = enrolment, -Country) %>%
-  mutate(enrolment = as.numeric(enrolment))
+  mutate(enrolment = as.numeric(enrolment),
+         year = as.numeric(year))
 
 ecec.df <- ecec.df %>%
   left_join(enrol.df, by = c("Country", "year"))
