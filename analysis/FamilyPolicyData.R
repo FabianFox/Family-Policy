@@ -5,7 +5,7 @@
 
 # Packages
 if (!require("pacman")) install.packages("pacman")
-p_load(tidyverse, rio, countrycode, ggrepel)
+p_load(tidyverse, rio, countrycode)
 
 # Data from http://www.spin.su.se/datasets
 
