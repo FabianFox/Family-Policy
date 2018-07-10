@@ -5,6 +5,7 @@
 if (!require("pacman")) install.packages("pacman")
 p_load(tidyverse, rio, countrycode, ggrepel)
 
+
 # Participation rate of 0-to2-year-olds in ECEC, EU28, 2004-2013
 ### ------------------------------------------------------------------------------------------------ ###
 
@@ -49,6 +50,7 @@ enrol.fig <- enrol.fig +
 
 # Save the figure to disk
 ggsave(filename = "./output/EnrolmentFigure.tiff", plot = enrol.fig, dpi = "print")
+
 
 # Public expenditures for ECEC
 ### ------------------------------------------------------------------------------------------------ ###
@@ -95,3 +97,53 @@ expenditure.fig <- expenditure.fig +
 
 # Save the figure to disk
 ggsave(filename = "./output/ExpenditureFigure.tiff", plot = expenditure.fig, dpi = "print")
+
+
+# Parental leave (SPIN data)
+### ------------------------------------------------------------------------------------------------ ###
+
+# Get the PLB data set
+plb.df <- spin.df$data[[3]] %>%
+  filter(between(YEAR, 1995, 2010)) %>%
+  mutate(ISO3 = countrycode(COUNTRY, origin = "genc2c", destination = "iso3c", custom_match = c("UK" = "GBR")),
+         EU28 = countrycode(ISO3, origin = "iso3c", destination = "eu28"),
+         Country = countrycode(ISO3, origin = "iso3c", destination = "country.name.en")) %>%
+  filter(!is.na(EU28))
+
+# Mean expenditure
+mean.benefit <- plb.df %>%
+  group_by(YEAR) %>%
+  summarise(mean.benefit = mean(PINRRYR, na.rm = TRUE)) %>%
+  mutate(label = "Mean")
+
+# Base plot
+benefit.fig <- ggplot(plb.df, aes(x = YEAR, y = PINRRYR)) +
+  geom_line(aes(group = Country), color = "gray70", alpha = 0.8) +
+  scale_y_continuous(name = "", labels = function(x) paste0(x*100, "%")) +
+  labs(x = "",
+       caption = "Source: SPIN (2015) Parental Leave Benefit (PLB) dataset\nIncluded countries: AUT, BEL, DNK, FRA, DEU, IRL, ITA, NLD, SWE, GBR") +
+  ggtitle(label = "Net replacement rate of parental leave (1995-2010)",
+          subtitle = "Measured as percentage of average productive workers' wage, 1st year") +
+  theme_minimal() +
+  theme(panel.grid.minor.x = element_blank(),
+        panel.grid.major.x = element_blank(),
+        text = element_text(size = 14),
+        axis.ticks = element_line(size = .5))
+  
+# Add further layers
+benefit.fig <- benefit.fig + geom_line(data = subset(plb.df, Country == "Germany"),
+                                               aes(x = YEAR, y = PINRRYR, group = Country), color = "red2", size = 1)
+
+benefit.fig <- benefit.fig + geom_line(data = mean.benefit, aes(x = YEAR, y = mean.benefit, group = 1), 
+                                               color = "black", size = 1, linetype = 2)
+
+benefit.fig <- benefit.fig + geom_text_repel(data = subset(plb.df,
+                                                                   Country %in% "Germany" & YEAR == 2000),
+                                                     aes(label = Country), box.padding = 1)
+
+benefit.fig <- benefit.fig + 
+  annotate(geom = "text", x = 2003, y = 0.40, label = "Mean") +
+  annotate(geom = "segment", x = 2005, xend = 2003, y = 0.31, yend = 0.38)
+
+# Save the figure to disk
+ggsave(filename = "./output/ParentalLeaveBenefitFigure.tiff", plot = benefit.fig, dpi = "print")
