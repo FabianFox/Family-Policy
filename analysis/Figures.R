@@ -92,3 +92,6 @@ expenditure.fig <- expenditure.fig + geom_text_repel(data = subset(expenditure.p
 expenditure.fig <- expenditure.fig + 
   annotate(geom = "text", x = 2006, y = 0.75, label = "Mean of EU28") +
   annotate(geom = "segment", x = 2005, xend = 2006, y = 0.55, yend = 0.72)
+
+# Save the figure to disk
+ggsave(filename = "./output/ExpenditureFigure.tiff", plot = expenditure.fig, dpi = "print")
