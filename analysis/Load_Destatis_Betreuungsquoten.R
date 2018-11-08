@@ -1,7 +1,11 @@
 # Load data from Destatis (Genesis)
 # Population: 12411-0012
-# Attendance of daycare: 22541-0002
+# Attendance of "Tageseinrichtung": 22541-0002
 
+!!!!!!!!!!
+# ADD: Attendance of "Kindertagespflege": 22543-0002
+!!!!!!!!!
+  
 # Packages
 if (!require("pacman")) install.packages("pacman")
 p_load(tidyverse, rio)
